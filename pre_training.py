@@ -27,5 +27,5 @@ x_train_reg, x_test_reg,y_train_reg,y_test_reg = train_test_split(x_train_norm,y
 x_test_clf,x_train_clf,y_train_clf,y_test_clf = train_test_split(x_train_norm,y_train_norm,test_size= 0.2,random_state= 42)
 
 #Transposed adjust
-x_train_clf = x_train_clf.T
-x_test_clf = x_test_clf.T
+#x_train_clf = x_train_clf.T
+#x_test_clf = x_test_clf.T

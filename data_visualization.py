@@ -9,6 +9,7 @@ from src.polinomial_function import polinomial_compute
 #classification libraries
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import KBinsDiscretizer      #Transform the continuos data in discrete
 
 #Regression model
 try:
@@ -16,8 +17,8 @@ try:
     alpha = float(input("Type the learning rate: "))
 
     #Verifying shapes
-    print(f"x_train_reg shape: {x_train_reg.shape}")
-    print(f"y_train_reg shape: {y_train_reg.shape}")
+    print(f"\ny_test_reg shape: {y_test_reg.shape}")
+    print(f"y_train_reg shape: {y_train_reg.shape}\n")
 
     # Apply polynomial transformation
     x_train_poly = polinomial_compute(x_train_reg)
@@ -27,8 +28,8 @@ try:
     y_test_reg = np.ravel(y_test_reg) 
 
     #Verification of dimension
-    print(f"after redimension - x_train_poly shape: {x_train_poly.shape}")
-    print(f"after redimension - y_train_reg shape: {y_train_reg.shape}")
+    print(f"after redimension - y_train_reg shape: {y_train_reg.shape}\n")
+    print(f"after redimension - y_test_reg shape: {y_test_reg.shape}\n")
 
     #initializations to all features
     b = 0
@@ -43,7 +44,7 @@ try:
         x_test_poly = x_test_poly[:min_test_samples]
         y_test_reg = y_test_reg[:min_test_samples]
 
-        print(f"We are using the first sample2: {min_test_samples} to match")
+        print(f"\nWe are using the first sample2: {min_test_samples} to match\n")
 
     # Prediction
     y_pred_reg = x_test_poly.dot(w_adam) + b_adam
@@ -78,18 +79,28 @@ except Exception as e:
 try:
     x_train_poly_clf = polinomial_compute(x_train_clf)
     x_test_poly_clf = polinomial_compute(x_test_clf)
+    
+    #Treating the data to ordinary type
+    est = KBinsDiscretizer(n_bins=5, encode = 'ordinal', strategy= 'uniform')
+    y_train_clf_discrete = est.fit_transform(y_train_clf.reshape(-1,1)).astype(int).ravel()
 
     #Training model
     clf_model = LogisticRegression(multi_class='multinomial',solver = 'lbfgs')
-    clf_model.fit(x_train_poly_clf,y_train_clf)
-
+    clf_model.fit(x_train_poly_clf,y_train_clf_discrete)
+    
     #prediction
     y_pred_clf = clf_model.predict(x_test_poly_clf)
     y_pred_prob = clf_model.predict_proba(x_test_poly_clf)
 
+    #y_pred_clf = np.ravel(y_pred_clf)
+    #y_test_clf = np.ravel(y_test_clf)
+
+    #Converting axis to a array
+    y_pred_clf_labels= np.argmax(y_pred_clf,axis =1)
+
     #Exactness of the model
-    accuracy = accuracy_score(x_test_clf,y_pred_clf)
-    print(f"The exactness of this model: {accuracy}")
+    accuracy = accuracy_score(x_test_clf,y_pred_clf_labels)
+    print(f"\n\nThe accuracy of this classification model: {accuracy}\n")
 
     #confusion matrix
     conf_matrix = confusion_matrix(y_test_clf,y_pred_clf)
@@ -125,8 +136,9 @@ try:
     plt.show()
 
 except Exception as e:
-    print(f"An erro2 occured at: {e}")
-
+    print(f"An error occurred: {str(e)}")
+    import traceback
+    traceback.print_exc()
 
 #Residuo compute
 residuo = y_pred_reg - y_test_reg
@@ -149,3 +161,14 @@ plt.title('True vs prediction')
 
 plt.tight_layout()
 plt.show()
+
+
+
+print('..........................')
+from src.Additional_files.computational_complexity import runtimes_details
+
+optional = input("Do you want to see latency time? (s or n)")
+
+if(optional == 's'):
+    runtimes_details()
+    
