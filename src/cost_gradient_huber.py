@@ -4,7 +4,7 @@ from src.polinomial_function import *
 def cost_huber(x_poly,y,w,b,delta= 1.0):
     m = len(y)
     y_pred = x_poly.dot(w) + b      #Prediction of target
-    erro = y - y_pred;
+    erro = y_pred - y;
 
     #Huber loss calculation - Vetorization
     mask = np.abs(erro) <= delta
@@ -15,7 +15,7 @@ def cost_huber(x_poly,y,w,b,delta= 1.0):
 def gradient_huber(x_poly,y,w,b,delta = 1.0):
     m = len(y)
     y_predict = x_poly.dot(w) + b
-    erros =y - y_predict;
+    erros = y_predict - y;
 
     #Huber loss
     mask = np.abs(erros) <= delta
