@@ -18,7 +18,7 @@ x_train_norm = compute_normalizing_function(x_train.values)
 y_train_norm = compute_normalizing_function(y_train.values.reshape(-1,1))
 
 #Classifing the target
-df['carga de resfriamento'] = pd.cut(df[col], bins=3, labels=['low','medium','high'])
+df['carga de resfriamento'] = pd.cut(y_train, bins=3, labels=['low','medium','high'])
 
 #splitting the data
 x_train_reg, x_test_reg,y_train_reg,y_test_reg = train_test_split(x_train_norm,y_train_norm,test_size= 0.30, random_state=42)
