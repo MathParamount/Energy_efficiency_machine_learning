@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 from pre_training import *
 from src.cost_gradient_huber import *
 from adam_compute import *
-from src.polinomial_function import polinomial_compute
+from src.polinomial_function import *
 
 #classification libraries
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import KBinsDiscretizer      #Transform the continuos data in discrete
+
+#Additional file
+#from src.Additional_files.computational_complexity import *
 
 #Regression model
 try:
@@ -36,7 +39,7 @@ try:
     w = np.zeros(x_train_poly.shape[1])
     
     # Train weights
-    w_adam,b_adam,cost_history = adam_correlation(x_train_poly,y_train_reg,w,b,alpha,num_iter,delta = 1.0)
+    w_adam,b_adam,cost_history = adam_correlation(x_train_poly,y_train_reg,w,b,alpha,num_iter,delta = 1.5)
 
     #Veryfing if the sample number is consistent
     if x_test_poly.shape[0] != len(y_test_reg):
@@ -92,18 +95,23 @@ try:
     y_pred_clf = clf_model.predict(x_test_poly_clf)
     y_pred_prob = clf_model.predict_proba(x_test_poly_clf)
 
-    #y_pred_clf = np.ravel(y_pred_clf)
-    #y_test_clf = np.ravel(y_test_clf)
-
     #Converting axis to a array
-    y_pred_clf_labels= np.argmax(y_pred_clf,axis =1)
+    y_pred_clf_labels= np.argmax(y_pred_clf)
+    y_real_clf_labels= np.argmax(y_test_clf)
+
+    print(f'\n shape of y_pred_clf_labels: {y_pred_clf_labels}')
+    print(f'\n shape of x_test_clf_labels: {y_real_clf_labels}')
 
     #Exactness of the model
-    accuracy = accuracy_score(x_test_clf,y_pred_clf_labels)
-    print(f"\n\nThe accuracy of this classification model: {accuracy}\n")
+    accuracy = (y_real_clf_labels/y_pred_clf_labels)*100
+    print(f"\n\nThe accuracy of this classification model: {round(accuracy,3)}%\n")
+
+    #Treating the y_test and y_pred
+    y_test_clf_discrete = est.fit_transform(y_test_clf.reshape(-1,1)).astype(int).ravel()
+    y_pred_clf_discrete = est.fit_transform(y_pred_clf.reshape(-1,1)).astype(int).ravel()
 
     #confusion matrix
-    conf_matrix = confusion_matrix(y_test_clf,y_pred_clf)
+    conf_matrix = confusion_matrix(y_test_clf_discrete,y_pred_clf_discrete)
     print("Confusion matrix of prediction model")
     print(conf_matrix)
     
@@ -126,7 +134,10 @@ try:
     # Plot errors
     plt.subplot(1, 2, 2)
     errors = y_pred_clf - y_test_clf
-    plt.hist(errors, bins=7, alpha=0.7, color='purple')
+
+    print(f'\nerror shape: {errors}\n')
+
+    plt.hist(errors.flatten(), bins=7, alpha=0.7, color='yellow')
     plt.xlabel('Prediction Error')
     plt.ylabel('Frequency')
     plt.title('Distribution of Prediction Errors')
@@ -165,10 +176,9 @@ plt.show()
 
 
 print('..........................')
-from src.Additional_files.computational_complexity import runtimes_details
 
-optional = input("Do you want to see latency time? (s or n)")
+#optional = input("Do you want to see latency time? (s or n)")
 
-if(optional == 's'):
-    runtimes_details()
+#if(optional == 's'):
+    #runtimes_details(x_train_poly_clf)
     
