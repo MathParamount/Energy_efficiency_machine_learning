@@ -7,9 +7,10 @@ from adam_compute import *
 from src.polinomial_function import *
 
 #classification libraries
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, mean_squared_error
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import KBinsDiscretizer      #Transform the continuos data in discrete
+from sklearn.model_selection import GridSearchCV
 
 #Additional file
 #from src.Additional_files.computational_complexity import *
@@ -52,6 +53,7 @@ try:
     # Prediction
     y_pred_reg = x_test_poly.dot(w_adam) + b_adam
 
+
     plt.figure(figsize=(12, 5))
 
     plt.subplot(1, 2, 1)
@@ -86,32 +88,37 @@ try:
     #Treating the data to ordinary type
     est = KBinsDiscretizer(n_bins=5, encode = 'ordinal', strategy= 'uniform')
     y_train_clf_discrete = est.fit_transform(y_train_clf.reshape(-1,1)).astype(int).ravel()
+	
+	#Searching the better C value to penalty
+    parm_c = {'C' : [0.01,0.1,1,10], 'solver': ['lbfgs']}
+    grid = GridSearchCV(LogisticRegression(),parm_c, cv =5)
+    grid.fit(x_train_poly_clf,y_train_clf_discrete)
+    print("The best c parameter is", grid.best_params_['C'])
+    
+    #scaling the data
+
+    scaler = StandardScaler()
+    x_train_pclf_scaler = scaler.fit_transform(x_train_poly_clf)
+    x_test_pclf_scaler = scaler.fit_transform(x_test_poly_clf)
 
     #Training model
-    clf_model = LogisticRegression(multi_class='multinomial',solver = 'lbfgs')
+    clf_model = LogisticRegression(class_weight= 'balanced', penalty = 'l2', C = grid.best_params_['C'], multi_class='multinomial',solver = 'saga',max_iter= 5000,tol=1e-4)
     clf_model.fit(x_train_poly_clf,y_train_clf_discrete)
     
     #prediction
     y_pred_clf = clf_model.predict(x_test_poly_clf)
     y_pred_prob = clf_model.predict_proba(x_test_poly_clf)
 
-    #Converting axis to a array
-    y_pred_clf_labels= np.argmax(y_pred_clf)
-    y_real_clf_labels= np.argmax(y_test_clf)
-
-    print(f'\n shape of y_pred_clf_labels: {y_pred_clf_labels}')
-    print(f'\n shape of x_test_clf_labels: {y_real_clf_labels}')
+    #Treating the y_test and y_pred
+    y_test_clf_discrete = est.transform(y_test_clf.reshape(-1,1)).astype(int).ravel()
+    y_pred_clf_discrete = est.transform(y_pred_clf.reshape(-1,1)).astype(int).ravel()
 
     #Exactness of the model
-    accuracy = (y_real_clf_labels/y_pred_clf_labels)*100
+    accuracy = 100*(np.sum(y_test_clf_discrete == y_pred_clf_discrete))/len(y_test_clf_discrete)
     print(f"\n\nThe accuracy of this classification model: {round(accuracy,3)}%\n")
 
-    #Treating the y_test and y_pred
-    y_test_clf_discrete = est.fit_transform(y_test_clf.reshape(-1,1)).astype(int).ravel()
-    y_pred_clf_discrete = est.fit_transform(y_pred_clf.reshape(-1,1)).astype(int).ravel()
-
     #confusion matrix
-    conf_matrix = confusion_matrix(y_test_clf_discrete,y_pred_clf_discrete)
+    conf_matrix = confusion_matrix(y_test_clf_discrete,y_pred_clf_discrete, normalize = 'true')
     print("Confusion matrix of prediction model")
     print(conf_matrix)
     
@@ -150,6 +157,9 @@ except Exception as e:
     print(f"An error occurred: {str(e)}")
     import traceback
     traceback.print_exc()
+
+
+y_pred_reg = x_test_poly.dot(w_adam) + b_adam
 
 #Residuo compute
 residuo = y_pred_reg - y_test_reg
