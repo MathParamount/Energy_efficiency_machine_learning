@@ -4,8 +4,9 @@ from data_visualization import *
 
 import time
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 
-def runtimes_details():
+def runtimes_details(x_train_poly_clf):
 
     #Regression model
     start = time.time()
@@ -20,7 +21,7 @@ def runtimes_details():
 
     #Classification model
     start_clf = time.time()
-    model = LogisticRegression()
+    model = LogisticRegression(x_train_poly_clf)
 
     predict = model.predict(x_test_clf)
     end_clf = time.time()
