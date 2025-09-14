@@ -7,7 +7,7 @@ from adam_compute import *
 from src.polinomial_function import *
 
 #classification libraries
-from sklearn.metrics import confusion_matrix, mean_squared_error
+from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import KBinsDiscretizer      #Transform the continuos data in discrete
 from sklearn.model_selection import GridSearchCV
@@ -19,36 +19,31 @@ from sklearn.model_selection import GridSearchCV
 try:
     num_iter = int(input("write down the iteration numbers: "))
     alpha = float(input("Type the learning rate: "))
-
-    #Verifying shapes
-    print(f"\ny_test_reg shape: {y_test_reg.shape}")
-    print(f"y_train_reg shape: {y_train_reg.shape}\n")
-
+    
     # Apply polynomial transformation
-    x_train_poly = polinomial_compute(x_train_reg)
-    x_test_poly = polinomial_compute(x_test_reg)
-
-    y_train_reg = np.ravel(y_train_reg)  # Transform (614, 1) → (614,)
-    y_test_reg = np.ravel(y_test_reg) 
+    x_train_poly = polinomial_compute(x_train_reg,max_degree = 3, num_total_features= 1000)
+    x_test_poly = polinomial_compute(x_test_reg,max_degree = 3, num_total_features= 1000)
 
     #Verification of dimension
-    print(f"after redimension - y_train_reg shape: {y_train_reg.shape}\n")
-    print(f"after redimension - y_test_reg shape: {y_test_reg.shape}\n")
+    print(f"y_train_reg shape: {y_train_reg.shape}\n")
+    print(f"y_test_reg shape: {y_test_reg.shape}\n")
+
+    print(f"x_train_poly shape: {x_train_poly.shape}\n")
 
     #initializations to all features
     b = 0
     w = np.zeros(x_train_poly.shape[1])
     
-    # Train weights
-    w_adam,b_adam,cost_history = adam_correlation(x_train_poly,y_train_reg,w,b,alpha,num_iter,delta = 1.5)
-
     #Veryfing if the sample number is consistent
-    if x_test_poly.shape[0] != len(y_test_reg):
-        min_test_samples = min(x_test_poly.shape[0], len(y_test_reg))
-        x_test_poly = x_test_poly[:min_test_samples]
-        y_test_reg = y_test_reg[:min_test_samples]
+    if x_train_poly.shape[0] != len(y_train_reg):
+        min_train_samples = min(x_train_poly.shape[0], y_train_reg.shape[0])
+        x_train_poly = x_train_poly[:min_train_samples]
+        y_train_reg = y_train_reg[:min_train_samples]
 
-        print(f"\nWe are using the first sample2: {min_test_samples} to match\n")
+        print(f"\nWe are using the first sample2: {min_train_samples} to match\n")
+
+    # Train weights
+    w_adam,b_adam,cost_history = adam_correlation(x_train_poly,y_train_reg,w,b,alpha,num_iter,delta = 1.0)
 
     # Prediction
     y_pred_reg = x_test_poly.dot(w_adam) + b_adam
@@ -82,13 +77,27 @@ except Exception as e:
 
 #Classification model
 try:
-    x_train_poly_clf = polinomial_compute(x_train_clf)
-    x_test_poly_clf = polinomial_compute(x_test_clf)
+    x_train_poly_clf = polinomial_compute(x_train_clf,max_degree = 3, num_total_features= 1000)
+    x_test_poly_clf = polinomial_compute(x_test_clf,max_degree = 3, num_total_features= 1000)
     
     #Treating the data to ordinary type
     est = KBinsDiscretizer(n_bins=5, encode = 'ordinal', strategy= 'uniform')
     y_train_clf_discrete = est.fit_transform(y_train_clf.reshape(-1,1)).astype(int).ravel()
 	
+    #Verifying and wrap up with shapes
+    print(f'\n The shape of x_train_poly_clf: {x_train_poly_clf.shape}')
+    print(f'\n The shape of y_train_clf_discrete: {y_train_clf_discrete}')
+
+    if x_train_poly_clf.shape[0] != y_train_clf_discrete.shape[0]:
+        
+        min_samples = min(x_train_poly_clf.shape[0],y_train_clf_discrete.shape[0])
+
+        x_train_poly_clf = x_train_poly_clf[:min_samples]
+        y_train_clf_discrete = y_train_clf_discrete[:min_samples]
+
+        print(f'\n Adjust to {min_samples}shapes \n ')
+
+
 	#Searching the better C value to penalty
     parm_c = {'C' : [0.01,0.1,1,10], 'solver': ['lbfgs']}
     grid = GridSearchCV(LogisticRegression(),parm_c, cv =5)
@@ -97,12 +106,8 @@ try:
     
     #scaling the data
 
-    scaler = StandardScaler()
-    x_train_pclf_scaler = scaler.fit_transform(x_train_poly_clf)
-    x_test_pclf_scaler = scaler.fit_transform(x_test_poly_clf)
-
     #Training model
-    clf_model = LogisticRegression(class_weight= 'balanced', penalty = 'l2', C = grid.best_params_['C'], multi_class='multinomial',solver = 'saga',max_iter= 5000,tol=1e-4)
+    clf_model = LogisticRegression(class_weight= 'balanced', penalty = 'l2', C = grid.best_params_['C'], multi_class='multinomial',solver = 'lbfgs',max_iter= 5000,tol=1e-4)
     clf_model.fit(x_train_poly_clf,y_train_clf_discrete)
     
     #prediction
