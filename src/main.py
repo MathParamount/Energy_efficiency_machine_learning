@@ -15,11 +15,6 @@ cols = ["compactibilidade relativa","Área da superfície","Área da parede","Á
 
 cols = [col for col in cols if col in df.columns]       #ensuring original columns
 
-#Initial view 
-print(df.head())
-print(df.describe())
-print((df.isnull()).sum())
-
 
 #Plotting the data with correlation matrix
 plt.figure(figsize = (10,15))
@@ -30,3 +25,9 @@ plt.show()
 #Seeing the relationship among multiple variables in dataset
 sea.pairplot(df[cols], height=10)
 plt.show()
+
+#Verifying the original data
+print(df.info())
+print(df.describe())
+print(df.isnull().sum())
+df.hist()  # Distribuições das variáveis

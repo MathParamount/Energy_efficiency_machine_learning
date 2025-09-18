@@ -21,8 +21,8 @@ try:
     alpha = float(input("Type the learning rate: "))
     
     # Apply polynomial transformation
-    x_train_poly = polinomial_compute(x_train_reg,max_degree = 3, num_total_features= 1000)
-    x_test_poly = polinomial_compute(x_test_reg,max_degree = 3, num_total_features= 1000)
+    x_train_poly ,poly_transform, feature_selector = polinomial_compute_fit_reg(x_train_reg,max_degree = 3, num_total_features= 1000)
+    x_test_poly = polinomial_compute_transform_reg(x_test_reg,poly_transform, feature_selector)
 
     #Verification of dimension
     print(f"y_train_reg shape: {y_train_reg.shape}\n")
@@ -77,8 +77,8 @@ except Exception as e:
 
 #Classification model
 try:
-    x_train_poly_clf = polinomial_compute(x_train_clf,max_degree = 3, num_total_features= 1000)
-    x_test_poly_clf = polinomial_compute(x_test_clf,max_degree = 3, num_total_features= 1000)
+    x_train_poly_clf, transform_dict= polinomial_compute_fit_clf(x_train_clf, y = y_train_clf, max_degree = 3, num_total_features= 1000)
+    x_test_poly_clf = polinomial_compute_transform_clf(x_test_clf,transform_dict)
     
     #Treating the data to ordinary type
     est = KBinsDiscretizer(n_bins=5, encode = 'ordinal', strategy= 'uniform')
@@ -99,8 +99,8 @@ try:
 
 
 	#Searching the better C value to penalty
-    parm_c = {'C' : [0.01,0.1,1,10], 'solver': ['lbfgs']}
-    grid = GridSearchCV(LogisticRegression(),parm_c, cv =5)
+    parm_c = {'C' : [0.001,0.01,0.1,1,10,100,1000], 'solver': ['lbfgs']}
+    grid = GridSearchCV(LogisticRegression(),parm_c, cv =10)
     grid.fit(x_train_poly_clf,y_train_clf_discrete)
     print("The best c parameter is", grid.best_params_['C'])
     

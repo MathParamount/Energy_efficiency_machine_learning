@@ -1,5 +1,5 @@
 from src.main import *
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PowerTransformer
 from sklearn.model_selection import train_test_split
 
 from scipy import stats         #To box-cox adjust
@@ -18,6 +18,8 @@ y_transf_data, lambda_value = stats.boxcox(y_train + 1e-10)
 print(f'optimal lambda value: {lambda_value}')
 
 #Applying validation
+y_train_transf = stats.boxcox(y_train + 1e-10, lmbda = lambda_value)
+
 y_test_transf = stats.boxcox(y_test + 1e-10, lmbda = lambda_value)
 
 #Original and box-cox of data visualization
@@ -49,23 +51,25 @@ def compute_normalizing_function_transform(x,scaler):
 
 #X train and your validation
 x_train_norm, scaler_x = compute_normalizing_function_fit(x_train.values)
-x_test_norm = compute_normalizing_function_transform(x_test,scaler_x)
+x_test_norm = compute_normalizing_function_transform(x_test.values,scaler_x)
 
 #y train your validation
-y_train_norm, scaler_y = compute_normalizing_function_fit(y_test_transf.reshape(-1,1))
+y_train_norm, scaler_y = compute_normalizing_function_fit(y_train_transf.reshape(-1,1))
 y_test_norm = compute_normalizing_function_transform(y_test_transf.reshape(-1,1), scaler_y)
 
 #Building regression variables
 x_train_reg, y_train_reg = x_train_norm, y_train_norm.flatten()
 x_test_reg, y_test_reg = x_test_norm, y_test_norm.flatten()
 
+#Building bins
+train_bins = [np.percentile(y_train,33), np.percentile(y_train,66)]
 
 #Building classificaition variables
-y_train_clf = np.digitize(y_train, bins = [np.percentile(y_train,33), np.percentile(y_train,66)])
-y_test_clf = np.digitize(y_test, bins = [np.percentile(y_train,33), np.percentile(y_train,66)])
+y_train_clf = np.digitize(y_train, bins = train_bins)
+y_test_clf = np.digitize(y_test, bins = train_bins)
 
-x_train_clf, y_train_clf = x_train_norm, y_train_norm
-x_test_clf, y_test_clf = x_test_norm, y_test_norm
+x_train_clf, y_train_clf = x_train_norm, y_train_clf
+x_test_clf, y_test_clf = x_test_norm, y_test_clf
 
 #Verifying class balance
 y_train_discrete = pd.cut(df[col], bins = 3, labels = [0,1,2]).astype(int)
