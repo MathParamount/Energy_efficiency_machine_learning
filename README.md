@@ -50,8 +50,9 @@ For the classification task, continuous data was discretized into 5 categories u
 
 The linear formule to regression was: 
 $$
-y = y_{\text{prediction regression}} - y_{\text{test regression}
+y = y_{\text{prediction regression}} - y_{\text{test regression}}
 $$
+
 
 ## Results
 
