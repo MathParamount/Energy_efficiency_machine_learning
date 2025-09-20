@@ -10,11 +10,13 @@ The project follows a complete workflow:
 
 3. Polynomial transformation for better data fitting
 
-4. Implementation of the Adam algorithm for efficient weight optimization
+5. Implementation of the Adam algorithm for efficient weight optimization
 
-5. Preprocessing with normalization and train/test split
+6. Preprocessing with train/test split and normalization
 
-6. Final models for regression and classification with visualizations
+7. The use of GridSearchCV to chose the best c and adjust of LogisticRegression to penalty: l2
+
+9. Final models for regression and classification with visualizations
 
 ## Especifications
 
@@ -24,47 +26,47 @@ The project follows a complete workflow:
 
 3. Polynomial Transformation: Feature expansion to capture non-linear relationships
 
-4. Adam Optimization: Algorithm that adapts the learning rate using first and second-order moments
+4. Adding the box-cox in pre_training to adjust the y_train
 
-5. Preprocessing: Data normalization and stratified train/test split
+5. The y_train related to classification part was used the digitize function from numpy to discretize and divide among bins
 
-6. Visualization: Comparative graphs, error histograms, and confusion matrix
+7. Adam Optimization: Algorithm that adapts the learning rate using first and second-order moments
+
+8. Preprocessing: stratified train/test split and data normalization
+
+9. Visualization: Comparative graphs, error histograms, and confusion matrix
     
 ## Details
 
-The project required multiple dimensional reformatting to adapt the data to the implemented algorithms. Visualization was organized into subplots showing:
+The project required multiple dimensional reformatting to adapt the data to the implemented algorithms. Along the code execution was plotted the number of features that is in 9 features.
 
-- Original data in spreadsheet format with 5 samples
+The mathematical formule to features verification is:
 
-- Cost evolution per iteration during training
-
-- Scatter plots of actual vs. predicted values
-
-- Error distribution histogram with 7 bins
-
-- Confusion matrix for classification model evaluation
+$$
+\binom{n+d}{d}
+$$
 
 For the classification task, continuous data was discretized into 5 categories using a uniform strategy, and the model was trained with logistic regression.
 
 ## Results
 
-The project successfully achieved its objectives using machine learning techniques. The confusion matrix shows significant values on the main diagonal, indicating good predictions. The error distribution is concentrated at approximately 2 units, and the residual plot demonstrates adequate dispersion with consistent predictions.
+The project successfully achieved its objectives using machine learning techniques. The confusion matrix shows significant values on the main diagonal, indicating good predictions. The error distribution is concentrated at zero units, and the residual plot demonstrates adequate dispersion with consistent predictions.
 
-The plot of actual vs. predicted values approximately follows the y = x line, confirming the accuracy of the regression model. The limitations encountered included preprocessing challenges and limited information in the original dataset.
+The plot of actual vs. predicted values approximately follows the y = x line, confirming the accuracy of the regression model, even been in 67% of accuracy. The limitations encountered included preprocessing challenges and limited information in the original dataset.
 
 ## Visual results
 
-The imagem below is popping out the metadata in terminal:
-
-![WhatsApp Image 2025-09-05 at 20 39 06](https://github.com/user-attachments/assets/2da4d5ec-28b6-41e2-ba07-30a4384ef006)
-
 The result of polinomial regression besides the prediction vs true value in y = x line:
 
-![WhatsApp Image 2025-09-05 at 20 39 07(1)](https://github.com/user-attachments/assets/c299dd98-cbf5-46a7-b936-91dc86cade82)
+![regression](https://github.com/user-attachments/assets/7edbee15-ca72-4d4c-b5a2-4b698c82c7c0)
 
-Quantity of data in each class derived from classification method and distribution error:
+Original data and with box-cox:
 
-![WhatsApp Image 2025-09-05 at 20 39 07](https://github.com/user-attachments/assets/efd6bef0-2e81-4c0b-994d-3c2717b4e7cf)
+![original_vs_boxcox](https://github.com/user-attachments/assets/12864af2-e416-4d5d-b4eb-693d89b5f2dc)
+
+The residual plot:
+
+![residuo](https://github.com/user-attachments/assets/b0db6c82-8392-4326-8268-b02876be2b49)
 
 -- Compilation and libraries
 
