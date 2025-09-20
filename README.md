@@ -46,11 +46,11 @@ $$
 \binom{n+d}{d}
 $$
 
-For the classification task, continuous data was discretized into 5 categories using a uniform strategy, and the model was trained with logistic regression.
+For the classification task, continuous data was discretized into 5 categories using ordinal encode, and the model was trained with logistic regression.
 
-The residuos measure follows the mathematical formulation:
+The linear formule to regression was: 
 $$
-residuo = previstion - test_regression
+y = y_{\text{prediction regression}} - y_{\text{test regression}
 $$
 
 ## Results
