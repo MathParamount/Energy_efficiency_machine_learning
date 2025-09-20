@@ -99,15 +99,15 @@ try:
 
 
 	#Searching the better C value to penalty
-    parm_c = {'C' : [0.001,0.01,0.1,1,10,100,1000], 'solver': ['lbfgs']}
-    grid = GridSearchCV(LogisticRegression(),parm_c, cv =10)
+    parm_c = {'C' : [0.01,0.1,1,10,100], 'solver': ['lbfgs']}
+    grid = GridSearchCV(LogisticRegression(),parm_c, cv =5)
     grid.fit(x_train_poly_clf,y_train_clf_discrete)
     print("The best c parameter is", grid.best_params_['C'])
     
     #scaling the data
 
     #Training model
-    clf_model = LogisticRegression(class_weight= 'balanced', penalty = 'l2', C = grid.best_params_['C'], multi_class='multinomial',solver = 'lbfgs',max_iter= 5000,tol=1e-4)
+    clf_model = LogisticRegression(class_weight= 'balanced', penalty = 'l2', C = grid.best_params_['C'], multi_class='multinomial',solver = 'lbfgs',max_iter= 3000,tol=1e-4)
     clf_model.fit(x_train_poly_clf,y_train_clf_discrete)
     
     #prediction
@@ -123,7 +123,7 @@ try:
     print(f"\n\nThe accuracy of this classification model: {round(accuracy,3)}%\n")
 
     #confusion matrix
-    conf_matrix = confusion_matrix(y_test_clf_discrete,y_pred_clf_discrete, normalize = 'true')
+    conf_matrix = confusion_matrix(y_test_clf_discrete,y_pred_clf_discrete)
     print("Confusion matrix of prediction model")
     print(conf_matrix)
     
@@ -135,8 +135,8 @@ try:
 
     # Plot true values
     plt.subplot(1, 2, 1)
-    plt.scatter(range(len(y_test_clf)), y_test_clf, alpha=0.7, label='True', c='blue')
-    plt.scatter(range(len(y_pred_clf)), y_pred_clf, alpha=0.7, label='Predicted', c='red', marker='x')
+    plt.scatter(range(len(y_test_clf_discrete)), y_test_clf_discrete, alpha=0.7, label='True', c='blue')
+    plt.scatter(range(len(y_pred_clf_discrete)), y_pred_clf_discrete, alpha=0.7, label='Predicted', c='red', marker='x')
     plt.xlabel('Sample')
     plt.ylabel('Energy Efficiency Class')
     plt.yticks([0, 1, 2], classes)
@@ -145,7 +145,7 @@ try:
 
     # Plot errors
     plt.subplot(1, 2, 2)
-    errors = y_pred_clf - y_test_clf
+    errors = y_pred_clf_discrete - y_test_clf_discrete      #erro por amostra
 
     print(f'\nerror shape: {errors}\n')
 

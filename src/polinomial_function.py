@@ -1,6 +1,8 @@
 from pre_training import *
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.feature_selection import SelectKBest, f_regression, f_classif
+
+#Regression
 
 def polinomial_compute_fit_reg(x_poly, max_degree = 3, num_total_features= 1000):   
    
@@ -28,5 +30,25 @@ def polinomial_compute_transform_reg(x_poly, poly, selector = None):
 
 def polinomial_compute_fit_clf(x_poly, y = None, max_degree = 3, num_total_features= 1000):
     
+    poly = PolynomialFeatures(degree= max_degree)
+    x_poly = poly.fit_transform(x_poly)
 
-def polinomial_compute_transform_clf(x_poly, poly, selector = None):
+    if x_poly.shape[1] > num_total_features and y is not None:
+        
+        selector = SelectKBest(score_func= f_classif, k = num_total_features)
+        x_poly = selector.fit_transform(x_poly, y)
+
+        return x_poly , {'poly', poly, 'selector', selector}
+    
+    else:
+
+        return x_poly, {'poly': poly, 'selector': None}
+    
+def polinomial_compute_transform_clf(x_poly, transformer_dict):
+
+    x_poly = transformer_dict['poly'].transform(x_poly)
+
+    if(transformer_dict['selector']):
+        x_poly = transformer_dict['selector'].transform(x_poly)
+
+    return x_poly
