@@ -48,7 +48,7 @@ $$
 
 For the classification task, continuous data was discretized into 5 categories using ordinal encode, and the model was trained with logistic regression.
 
-The linear formule to regression was: 
+The residuo formule used was: 
 
 y = y_prediction - y_test
 
