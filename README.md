@@ -48,6 +48,11 @@ $$
 
 For the classification task, continuous data was discretized into 5 categories using a uniform strategy, and the model was trained with logistic regression.
 
+The residuos measure follows the mathematical formulation:
+$$
+residuo = previstion - test_regression
+$$
+
 ## Results
 
 The project successfully achieved its objectives using machine learning techniques. The confusion matrix shows significant values on the main diagonal, indicating good predictions. The error distribution is concentrated at zero units, and the residual plot demonstrates adequate dispersion with consistent predictions.
@@ -68,7 +73,8 @@ The residual plot:
 
 ![residuo](https://github.com/user-attachments/assets/b0db6c82-8392-4326-8268-b02876be2b49)
 
--- Compilation and libraries
+
+## Compilation and libraries
 
 In main file:
 
